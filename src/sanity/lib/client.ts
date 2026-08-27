@@ -4,8 +4,6 @@ import { apiVersion, dataset, projectId } from '../env'
 import { sanityFetch } from '@/sanity/lib/live'
 import { Product, ProductCategory } from '@/sanity.types'
 
-const isConfigured = projectId !== 'placeholder'
-
 export const client = createClient({
   projectId,
   dataset,
@@ -13,65 +11,57 @@ export const client = createClient({
   useCdn: true,
 })
 
-const emptyArray: never[] = []
-
-export const getAllProducts = async (): Promise<Product[]> => {
-  if (!isConfigured) return emptyArray as Product[]
+export const getAllProducts = async () => {
   try {
     const query = `*[_type == "product"]`
     const products = await sanityFetch({ query: query })
     return products.data as Product[];
   } catch {
-    return emptyArray as Product[]
+    return [] as Product[];
   }
 }
 
-export const getAllCategories = async (): Promise<ProductCategory[]> => {
-  if (!isConfigured) return emptyArray as ProductCategory[]
+export const getAllCategories = async () => {
   try {
     const query = `*[_type == "productCategory"]`
     const categories = await sanityFetch({ query: query })
     return categories.data as ProductCategory[];
   } catch {
-    return emptyArray as ProductCategory[]
+    return [] as ProductCategory[];
   }
 }
 
-export const getCategoryBySlug = async (slug: string): Promise<ProductCategory | null> => {
-  if (!isConfigured) return null
+export const getCategoryBySlug = async (slug: string) => {
   try {
     const query = `*[_type == "productCategory" && slug.current == $slug][0]`
     const category = await sanityFetch({ query: query, params: { slug } });
     return category.data as ProductCategory;
   } catch {
-    return null
+    return null as unknown as ProductCategory;
   }
 }
 
-export const getProductsByCategorySlug = async (slug: string): Promise<Product[]> => {
-  if (!isConfigured) return emptyArray as Product[]
+export const getProductsByCategorySlug = async (slug: string) => {
   try {
     const query = `*[_type == "product" && references(*[_type == "productCategory" && slug.current == $slug][0]._id)]`
     const products = await sanityFetch({ query: query, params: { slug } });
     return products.data as Product[];
   } catch {
-    return emptyArray as Product[]
+    return [] as Product[];
   }
 }
 
-export const getProductById = async (id: string): Promise<Product | null> => {
-  if (!isConfigured) return null
+export const getProductById = async (id: string) => {
   try {
     const query = `*[_type == "product" && _id == $id][0]`;
     const product = await sanityFetch({ query: query, params: { id } });
     return product.data as Product;
   } catch {
-    return null
+    return null as unknown as Product;
   }
 }
 
-export const searchProducts = async (searchQuery: string): Promise<Product[]> => {
-  if (!isConfigured) return emptyArray as Product[]
+export const searchProducts = async (searchQuery: string) => {
   try {
     const query = `*[_type == "product" && (
       title match "*" + $searchQuery + "*" ||
@@ -83,6 +73,6 @@ export const searchProducts = async (searchQuery: string): Promise<Product[]> =>
     const products = await sanityFetch({ query: query, params: { searchQuery } });
     return products.data as Product[];
   } catch {
-    return emptyArray as Product[]
+    return [] as Product[];
   }
 }
